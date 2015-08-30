@@ -5,9 +5,5 @@ import cne
 
 class TestCne(TestCase):
     def test_is_dict(self):
-        data = cne.get()
+        data = cne.get(fuel_type='gasolina_95')
         self.assertTrue(isinstance(data, dict))
-
-    def test_is_int(self):
-        data = cne.get(fuel_type='gasolina_93')
-        self.assertTrue(isinstance(data, int))

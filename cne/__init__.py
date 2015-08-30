@@ -1,45 +1,45 @@
 #!/usr/bin/env python
 
-import requests
-from pydash import find, filter_
+try:
+    from urllib import request
+except:
+    import urllib2 as request
+
+import json
+
+from .choices import FUEL_TYPES
 
 TOKEN = '6M5jaVAzPS'
-FUEL_TYPES = (
-    'gasolina_93',
-    'gasolina_95',
-    'gasolina_97',
-    'petroleo_diesel',
-    'kerosene',
-)
 
 
-def get(commune=None, distributor=None, fuel_type=None):
-    r = requests.get('http://api.cne.cl/api/listaInformacion/%s' % TOKEN)
-    res = r.json()
+def get(fuel_type, commune=None, dist=None):
+    result = {}
+    url = 'http://api.cne.cl/api/listaInformacion/%s' % TOKEN
 
-    if res.get('estado') != 'OK':
-        return []
+    with request.urlopen(url) as response:
+        encoding = response.headers['content-type'].split('charset=')[-1]
+        res = json.loads(response.read().decode(encoding))
 
-    data = res.get('data')
-    result = None
+        if res.get('estado') != 'OK':
+            return {}
 
-    if commune is None and distributor is None:
-        data = [find(data, {'id': 'co01001'})]
+        data = res.get('data')
 
-    else:
         if commune:
-            data = filter_(data, {'nombre_comuna': commune})
+            data = filter(
+                lambda x: x['nombre_comuna'].lower() == commune, data)
 
-        if distributor:
-            data = filter_(data, {'nombre_distribuidor': distributor})
-
-    if len(data) > 0:
-        data = data[0]
+        if dist:
+            data = filter(
+                lambda x: x['nombre_distribuidor'].lower() == dist, data)
 
         if fuel_type in FUEL_TYPES:
-            result = data.get('precio_por_combustible').get(fuel_type)
+            data = list(filter(
+                lambda x: x['precio_por_combustible'][fuel_type], data))
 
-        else:
-            result = data.get('precio_por_combustible')
+            if len(data) > 0:
+                result = min(
+                    data,
+                    key=lambda x: x['precio_por_combustible'][fuel_type])
 
     return result
