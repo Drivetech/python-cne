@@ -35,7 +35,7 @@ def get(fuel_type, commune=None, dist=None):
 
         if fuel_type in FUEL_TYPES:
             data = list(filter(
-                lambda x: x['precio_por_combustible'][fuel_type], data))
+                lambda x: fuel_type in x['precio_por_combustible'], data))
 
             if len(data) > 0:
                 result = min(

@@ -9,7 +9,7 @@ def readme(*paths):
 
 setup(
     name='cne',
-    version='0.1.0',
+    version='0.1.1',
     description='Get fuel price from cne api',
     long_description=readme('README.rst'),
     classifiers=[
